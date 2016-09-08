@@ -1,0 +1,5 @@
+FROM openresty/openresty:1.11.2.1-xenial
+
+MAINTAINER shrikeh@gmail.com
+
+COPY ./conf /usr/local/openresty/nginx/conf

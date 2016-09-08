@@ -1,0 +1,86 @@
+---
+version: '2'
+networks:
+  memcached-frontend:
+    driver: bridge
+  redis-frontend:
+    driver: bridge
+  varnish-frontend:
+    driver: bridge
+  varnish-backend:
+    driver: bridge
+  php-fpm:
+    driver: bridge
+
+services:
+  application:
+    build:
+      context: ./data-volume
+  frontend-openresty:
+    build:
+      context: ./frontend-openresty
+      dockerfile: Dockerfile-frontend-openresty
+    links:
+      - varnish
+      - redis-frontend
+      - memcached-frontend
+    volumes_from:
+      - application:ro
+    ports:
+      - "80:80"
+    networks:
+      - redis-frontend
+      - memcached-frontend
+      - varnish-frontend
+  redis-frontend:
+    image: redis
+    networks:
+      - redis-frontend
+  memcached-frontend:
+    image: memcached:1.4.31-alpine
+    networks:
+      memcached-frontend:
+        aliases:
+          - memcached-frontend
+  varnish:
+    build:
+      context: varnish
+      dockerfile: Dockerfile-varnish
+    networks:
+      varnish-frontend:
+        aliases:
+          - varnish-frontend
+      varnish-backend:
+        aliases:
+          - varnish-backend
+  backend-nginx:
+    build:
+      context: ./backend-nginx
+      dockerfile: Dockerfile-backend-nginx
+    links:
+      - varnish
+    depends_on:
+      - application
+    ports:
+      - "8080:80"
+    networks:
+      varnish-backend:
+        aliases:
+          - backend-nginx
+      php-fpm:
+        aliases:
+          - backend-nginx
+    volumes_from:
+      - application:ro
+  php-fpm:
+    build:
+      context: ./php-fpm
+      dockerfile: Dockerfile-php-fpm
+    depends_on:
+      - application
+    volumes_from:
+      - application:ro
+    links:
+      - backend-nginx
+    networks:
+      - php-fpm
