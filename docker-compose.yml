@@ -59,8 +59,7 @@ services:
       dockerfile: Dockerfile-backend-nginx
     links:
       - varnish
-    depends_on:
-      - application
+      - php-fpm
     ports:
       - "8080:80"
     networks:
@@ -70,17 +69,13 @@ services:
       php-fpm:
         aliases:
           - backend-nginx
-    volumes_from:
-      - application:ro
   php-fpm:
     build:
       context: ./php-fpm
       dockerfile: Dockerfile-php-fpm
-    depends_on:
-      - application
     volumes_from:
       - application:ro
-    links:
-      - backend-nginx
     networks:
-      - php-fpm
+      php-fpm:
+        aliases:
+          - php-fpm
