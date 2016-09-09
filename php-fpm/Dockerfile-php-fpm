@@ -1,4 +1,3 @@
 FROM php:7.0.10-fpm-alpine
 
-COPY ./etc/php-fpm.conf /usr/local/etc
-COPY ./etc/php-fpm.d /usr/local/etc
+#COPY ./etc/php-fpm.conf /usr/local/etc
