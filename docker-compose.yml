@@ -60,8 +60,6 @@ services:
     links:
       - varnish
       - php-fpm
-    ports:
-      - "8080:80"
     networks:
       varnish-backend:
         aliases:
